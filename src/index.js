@@ -3,6 +3,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import requirefresh from "requirefresh";
 import prettyError from "./utils/errors";
 
+import glob from "glob";
+import compact from "lodash/compact";
+import uniq from "lodash/uniq";
+
 const beautifyHtml = beautify.html;
 
 require("@babel/register")({
@@ -10,19 +14,77 @@ require("@babel/register")({
 });
 
 class StaticRenderHtmlWebpackPlugin {
-  constructor(options) {
-    this.options = Object.assign(
-      {},
-      {
-        entry: "",
-        pretty: false
-      },
-      options
-    );
+  constructor({
+    components = [],
+    entry = "",
+    pretty = false,
+    verbose,
+    ...globOptions
+  } = {}) {
+    this.entry = entry;
+    this.pretty = pretty;
+    this.files = components;
+    this.verbose = !!verbose;
+    this.globOptions = {
+      absolute: true,
+      ...globOptions
+    };
+
+    this.filesAlreadyAdded = false;
   }
 
   apply(compiler) {
-    const entry = this.options.entry;
+    const entry = this.entry;
+
+    (compiler.hooks
+      ? compiler.hooks.afterCompile.tapAsync.bind(
+          compiler.hooks.afterCompile,
+          "WebpackWatchPlugin"
+        )
+      : compiler.plugin.bind(compiler, "after-compile"))(
+      (compilation, callback) => {
+        const filesFound = [];
+        const filesFoundToEclude = [];
+        this.files.map(pattern => {
+          if (pattern.substr(0, 1) !== "!") {
+            glob
+              .sync(pattern, this.globOptions)
+              .map(file => filesFound.push(file));
+          } else {
+            glob
+              .sync(pattern.substr(1), this.globOptions)
+              .map(file => filesFoundToEclude.push(file));
+          }
+        });
+
+        const files = uniq(
+          compact(
+            filesFound.map(file => {
+              if (~filesFoundToEclude.indexOf(file)) {
+                return;
+              }
+              return file;
+            })
+          )
+        );
+
+        if (this.verbose && !this.filesAlreadyAdded) {
+          console.log(
+            "Additional files watched : ",
+            JSON.stringify(files, null, 2)
+          );
+        }
+
+        if (Array.isArray(compilation.fileDependencies)) {
+          files.map(file => compilation.fileDependencies.push(file));
+        } else {
+          files.map(file => compilation.fileDependencies.add(file));
+        }
+
+        this.filesAlreadyAdded = true;
+        callback();
+      }
+    );
 
     compiler.hooks.emit.tapAsync(
       { name: "JSX to HTML Static Render" },
@@ -77,7 +139,7 @@ class StaticRenderHtmlWebpackPlugin {
 
           let html = file.source;
 
-          if (this.options.pretty) {
+          if (this.pretty) {
             try {
               html = beautifyHtml(html, {
                 indent_size: 2
@@ -93,6 +155,7 @@ class StaticRenderHtmlWebpackPlugin {
             size: () => file.size
           };
         });
+        this.filesAlreadyAdded = true;
         callback();
       }
     );
