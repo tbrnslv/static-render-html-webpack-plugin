@@ -82,13 +82,11 @@ class StaticRenderHtmlWebpackPlugin {
         }
 
         this.filesAlreadyAdded = true;
-        callback();
-      }
-    );
 
-    compiler.hooks.emit.tapAsync(
-      { name: "JSX to HTML Static Render" },
-      (compilation, callback) => {
+        filesFound.forEach(file => {
+          requirefresh(file);
+        });
+
         let result = "";
 
         if (!entry) {
