@@ -84,7 +84,11 @@ class StaticRenderHtmlWebpackPlugin {
         this.filesAlreadyAdded = true;
 
         filesFound.forEach(file => {
-          requirefresh(file);
+          try {
+            requirefresh(file);
+          } catch (error) {
+            compilation.errors.push(prettyError.emptyEntry(error));
+          }
         });
 
         let result = "";
@@ -109,7 +113,7 @@ class StaticRenderHtmlWebpackPlugin {
           result = requirefresh(entry);
         } catch (error) {
           compilation.errors.push(prettyError.errorWrapper(error));
-          return callback();
+          //return callback();
         }
 
         compilation.fileDependencies.add(entry);
