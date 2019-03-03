@@ -1,16 +1,13 @@
-import React from 'react';
+/** @jsx h */
+import { h } from "preact";
 
-const HtmlWrapper = (props) => (
+const HtmlWrapper = props => (
   <html lang="en">
     <head>
-      <meta charSet="utf-8" />
-      <title>
-        Static render html webpack plugin
-      </title>
+      <meta charset="utf-8" />
+      <title>Static render html webpack plugin</title>
     </head>
-    <body>
-      { props.children }
-    </body>
+    <body>{props.children}</body>
   </html>
 );
 

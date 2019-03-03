@@ -1,11 +1,10 @@
-import React from 'react';
-import HtmlWrapper from './html_wrapper.jsx';
+/** @jsx h */
+import { h } from "preact";
+import HtmlWrapper from "./html_wrapper.jsx";
 
 const Main = () => (
-  <div className="main">
-    <span>
-      Main page
-    </span>
+  <div class="main">
+    <span>Main page</span>
   </div>
 );
 
@@ -16,5 +15,5 @@ const PageMain = () => (
 );
 
 export default {
-  main: <PageMain />,
+  main: <PageMain />
 };

@@ -1,27 +1,23 @@
-import React from 'react';
-import HtmlWrapper from './html_wrapper.jsx';
+/** @jsx h */
+import { h } from "preact";
+
+import HtmlWrapper from "./html_wrapper.jsx";
 
 const Main = () => (
-  <div className="main">
-    <span>
-      Main page
-    </span>
+  <div class="main">
+    <span>Main page</span>
   </div>
 );
 
 const About = () => (
-  <div className="about">
-    <span>
-      About page
-    </span>
+  <div class="about">
+    <span>About page</span>
   </div>
 );
 
 const Contacts = () => (
-  <div className="contacts">
-    <span>
-      Contacts page
-    </span>
+  <div class="contacts">
+    <span>Contacts page</span>
   </div>
 );
 
@@ -46,5 +42,5 @@ const PageContacts = () => (
 export default {
   main: <PageMain />,
   about: <PageAbout />,
-  contacts: <PageContacts />,
+  contacts: <PageContacts />
 };

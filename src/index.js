@@ -1,3 +1,7 @@
+/** @jsx h */
+import render from "preact-render-to-string";
+import { h } from "preact";
+
 import beautify from "js-beautify";
 import { renderToStaticMarkup } from "react-dom/server";
 import requirefresh from "requirefresh";
@@ -125,9 +129,7 @@ class StaticRenderHtmlWebpackPlugin {
         Object.keys(result).map(key => {
           let renderedStaticMarkup = "";
           try {
-            renderedStaticMarkup = `<!DOCTYPE html>${renderToStaticMarkup(
-              result[key]
-            )}`;
+            renderedStaticMarkup = `<!DOCTYPE html>${render(result[key])}`;
           } catch (error) {
             renderedStaticMarkup = `Error: '${error}'\nFile: '${entry}'\nProperty: '${key}'`;
             compilation.errors.push(prettyError.errorWrapper(error));
